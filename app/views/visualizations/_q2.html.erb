@@ -1,0 +1,108 @@
+<div id="view2"></div>
+
+<script type="text/javascript">
+  const spec2 = {
+    "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+    "width": 450,
+    "height": 200,
+    "padding": 5,
+
+    "data": [
+      {
+        "name": "table",
+        "url": "http://localhost:3000/api/publications_by_num_citations?top=5&venue=arXiv"
+      }
+    ],
+
+    "signals": [
+      {
+        "name": "tooltip",
+        "value": {},
+        "on": [
+          {"events": "rect:mouseover", "update": "datum"},
+          {"events": "rect:mouseout",  "update": "{}"}
+        ]
+      }
+    ],
+
+    "scales": [
+      {
+        "name": "xscale",
+        "type": "band",
+        "domain": {"data": "table", "field": "title"},
+        "range": "width",
+        "padding": 0.05,
+        "round": true
+      },
+      {
+        "name": "yscale",
+        "domain": {"data": "table", "field": "num_citations"},
+        "nice": true,
+        "range": "height"
+      }
+    ],
+
+    "axes": [
+      {"orient": "bottom", "scale": "xscale", "labels":false},
+      {"orient": "left", "scale": "yscale"}
+    ],
+
+    "marks": [
+      {
+        "type": "rect",
+        "from": {"data":"table"},
+        "encode": {
+          "enter": {
+            "x": {"scale": "xscale", "field": "title"},
+            "width": {"scale": "xscale", "band": 1},
+            "y": {"scale": "yscale", "field": "num_citations"},
+            "y2": {"scale": "yscale", "value": 0}
+          },
+          "update": {
+            "fill": {"value": "steelblue"}
+          },
+          "hover": {
+            "fill": {"value": "red"}
+          }
+        }
+      },
+      {
+        "type": "text",
+        "encode": {
+          "enter": {
+            "align": {"value": "center"},
+            "baseline": {"value": "bottom"},
+            "fill": {"value": "#333"}
+          },
+          "update": {
+            "x": {"scale": "xscale", "signal": "tooltip.title", "band": 0.5},
+            "y": {"scale": "yscale", "signal": "tooltip.num_citations", "offset": -2},
+            "text": {"signal": "tooltip.num_citations"},
+            "fillOpacity": [
+              {"test": "datum === tooltip", "value": 0},
+              {"value": 1}
+            ]
+          }
+        }
+      }
+    ]
+  };
+
+  const vegaTooltipOptions2 = {
+    showAllFields: false,
+    fields: [
+      {
+        field: "title",
+        title: "Title",
+        formatType:"string"
+      }
+    ]
+  };
+
+  vega.embed("#view2", spec2, vegaOptions)
+  .then(function(result) {
+    // result.view is the Vega View
+    vegaTooltip.vega(result.view, vegaTooltipOptions2);
+  })
+  .catch(console.error);
+</script>

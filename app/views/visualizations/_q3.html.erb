@@ -1,0 +1,141 @@
+<div id="view3"></div>
+
+<script type="text/javascript">
+  const spec3 = {
+    "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+    "width": 900,
+    "height": 200,
+    "padding": 5,
+
+    "signals": [
+      // {
+      //   "name": "interpolate",
+      //   "value": "linear",
+      //   "bind": {
+      //     "input": "select",
+      //     "options": [
+      //       "basis",
+      //       "cardinal",
+      //       "catmull-rom",
+      //       "linear",
+      //       "monotone",
+      //       "natural",
+      //       "step",
+      //       "step-after",
+      //       "step-before"
+      //     ]
+      //   }
+      // } <== for dropdown to choose which type of line is drawn - eg. curved or jagged
+    ],
+
+    "data": [
+      {
+        "name": "table",
+        "url": "http://localhost:3000/api/num_publications_by_year?venue=ICSE"
+      }
+    ],
+
+    "scales": [
+      {
+        "name": "year",
+        "type": "point",
+        "range": "width",
+        "domain": {"data": "table", "field": "year"}
+      },
+      {
+        "name": "num_publications",
+        "type": "linear",
+        "range": "height",
+        "nice": true,
+        "zero": true,
+        "domain": {"data": "table", "field": "num_publications"}
+      },
+      {
+        "name": "color",
+        "type": "ordinal",
+        "range": "category",
+        "domain": {"data": "table", "field": "c"}
+      }
+    ],
+
+    "axes": [
+      {"orient": "bottom", "scale": "year"},
+      {"orient": "left", "scale": "num_publications"}
+    ],
+
+    "marks": [
+      {
+        "type": "group",
+        "from": {
+          "facet": {
+            "name": "series",
+            "data": "table",
+            "groupby": "c"
+          }
+        },
+        "marks": [
+          {
+            "type": "line",
+            "from": {"data": "series"},
+            "encode": {
+              "enter": {
+                "x": {"scale": "year", "field": "year"},
+                "y": {"scale": "num_publications", "field": "num_publications"},
+                "stroke": {"scale": "color", "field": "c"},
+                "strokeWidth": {"value": 2}
+              },
+              "update": {
+                // "interpolate": {"signal": "interpolate"}, <== for the dropdown
+                "fillOpacity": {"value": 1}
+              },
+              "hover": {
+                "fillOpacity": {"value": 0.5}
+              }
+            }
+          },
+          {
+            "type": "symbol",
+            "from": {"data": "series"},
+            "encode": {
+              "enter": {
+                "x": {"scale": "year", "field": "year"},
+                "y": {"scale": "num_publications", "field": "num_publications"},
+                "fill":{"value":"black"}
+              },
+              "update": {
+                // "interpolate": {"signal": "interpolate"}, <== for the dropdown
+                "fill": {"value": 1}
+              },
+              "hover": {
+                "fill": {"value": "orange"}
+              }
+            }
+          }
+        ]
+      }
+    ]
+  };
+
+  const vegaTooltipOptions3 = {
+    showAllFields: false,
+    fields: [
+      {
+        field: "year",
+        title: "Year",
+        formatType:"string"
+      },
+      {
+        field: "num_publications",
+        title: "No. of publications",
+        formatType:"number"
+      }
+    ]
+  };
+
+  vega.embed("#view3", spec3, vegaOptions)
+    .then(function(result) {
+      // result.view is the Vega View
+      vegaTooltip.vega(result.view, vegaTooltipOptions3);
+    })
+    .catch(console.error);
+</script>
