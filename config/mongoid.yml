@@ -1,3 +1,19 @@
+production:
+  clients:
+    default:
+     # The standard MongoDB connection URI allows for easy
+     # replica set connection setup.
+     # Use environment variables or a config file to keep your
+     # credentials safe e.g. <%= ENV['MONGODB_URI'] %>.
+     uri: <%= ENV['MONGODB_URI'] %>
+
+     options:
+       # The default timeout is 5, which is the time in seconds
+       # for a connection to time out.
+       # We recommend 15 because it allows for plenty of time
+       # in most operating environments.
+       connect_timeout: 15
+
 development:
   # Configure available database clients. (required)
   clients:
@@ -5,7 +21,7 @@ development:
     default:
       # Defines the name of the default database that Mongoid can connect to.
       # (required).
-      database: simon-says-backend_development
+      database: viz
       # Provides the hosts the default client can connect to. Must be an array
       # of host:port pairs. (required)
       hosts:
@@ -148,7 +164,7 @@ development:
 test:
   clients:
     default:
-      database: simon-says-backend_test
+      database: viz_test
       hosts:
         - localhost:27017
       options:
