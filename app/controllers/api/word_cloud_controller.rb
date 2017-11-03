@@ -1,9 +1,8 @@
 class Api::WordCloudController < ApplicationController
-  # q5
   def index
     json = {
       title: 'hello',
-      message: 'world'
+      total_num_publications: Publication.count
     }
 
     json_response(json)
