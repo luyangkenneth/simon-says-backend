@@ -4,7 +4,7 @@ class JsonImporter
   def self.import(input_file = DEFAULT_RAW_JSON_FILE_PATH)
     # Reset DB
     Publication.delete_all
-    Publication.create_indexes
+    Publication.remove_indexes
 
     File.foreach(input_file).with_index(1) do |input_line, index|
       # Parse and sanitize json
@@ -30,5 +30,7 @@ class JsonImporter
 
       puts "Parsed #{index} papers" if index % 1000 == 0
     end
+
+    Publication.create_indexes
   end
 end

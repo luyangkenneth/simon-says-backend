@@ -11,4 +11,5 @@ class Publication
   field :venue,          type: String
 
   index({ publication_id: 1 }, { unique: true })
+  index({ title: 1 })
 end
