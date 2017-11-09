@@ -2,7 +2,7 @@ class Api::NumPublicationsByYearController < ApplicationController
   def index
     num_publications_by_year = {}
 
-    Publication.where("this.venue.toLowerCase() == '#{venue}'").each do |publication|
+    Publication.where(query).each do |publication|
       year = publication.year
       if num_publications_by_year[year].nil?
         num_publications_by_year[year] = 1
@@ -16,7 +16,19 @@ class Api::NumPublicationsByYearController < ApplicationController
 
   private
 
+  def query
+    queries = []
+    queries << "this.venue.toLowerCase() == '#{venue}'" unless venue.nil?
+    queries << "this.authors.map(a => a['name'].toLowerCase()).includes('#{author}')" unless author.nil?
+    raise ArgumentError, 'No params specified' if queries.empty?
+    queries.join(' && ')
+  end
+
   def venue
-    params[:venue].downcase
+    params[:venue]&.downcase
+  end
+
+  def author
+    params[:author]&.downcase
   end
 end
