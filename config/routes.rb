@@ -3,5 +3,6 @@ Rails.application.routes.draw do
 
   namespace :api do
     get 'num_publications_by_year', to: 'num_publications_by_year#index'
+    get 'num_citations_by_year', to: 'num_citations_by_year#index'
   end
 end
