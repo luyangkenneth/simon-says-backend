@@ -4,11 +4,8 @@ class Api::NumPublicationsByYearController < ApplicationController
 
     Publication.where(query).each do |publication|
       year = publication.year
-      if num_publications_by_year[year].nil?
-        num_publications_by_year[year] = 1
-      else
-        num_publications_by_year[year] += 1
-      end
+      num_publications_by_year[year] ||= 0
+      num_publications_by_year[year] += 1
     end
 
     json_response(num_publications_by_year)
