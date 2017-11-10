@@ -17,7 +17,8 @@ class Api::NumCitationsByYearController < ApplicationController
     queries = []
     queries << "this.title.toLowerCase() == '#{title}'" unless title.nil?
     queries << "this.authors.map(a => a['name'].toLowerCase()).includes('#{author}')" unless author.nil?
-    raise ArgumentError, 'No params specified' if queries.empty?
+
+    return 'true' if queries.empty?
     queries.join(' && ')
   end
 
