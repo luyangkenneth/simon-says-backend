@@ -17,7 +17,8 @@ class Api::NumPublicationsByYearController < ApplicationController
     queries = []
     queries << "this.venue.toLowerCase() == '#{venue}'" unless venue.nil?
     queries << "this.authors.map(a => a['name'].toLowerCase()).includes('#{author}')" unless author.nil?
-    raise ArgumentError, 'No params specified' if queries.empty?
+
+    return 'true' if queries.empty?
     queries.join(' && ')
   end
 
