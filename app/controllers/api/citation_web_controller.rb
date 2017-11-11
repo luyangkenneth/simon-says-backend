@@ -14,11 +14,29 @@ class Api::CitationWebController < ApplicationController
     }
 
     # Level 1
+    level_one_incitations = []
     Publication.collection.aggregate([
       {
         '$match': {
           'publication_id': {
             '$in': base_paper['inCitations']
+          }
+        }
+      }
+    ]).each do |paper|
+      citation_web[paper['publication_id']] = {
+        title: paper['title'],
+        inCitations: paper['inCitations']
+      }
+      level_one_incitations += paper['inCitations']
+    end
+
+    # Level 2
+    Publication.collection.aggregate([
+      {
+        '$match': {
+          'publication_id': {
+            '$in': level_one_incitations
           }
         }
       }
