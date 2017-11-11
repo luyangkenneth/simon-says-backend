@@ -3,7 +3,7 @@ class Api::AuthorsController < ApplicationController
     authors = Set.new
 
     Publication.all.each do |publication|
-      authors += publication.authors.map { |author| author['name'] }
+      authors += publication.authors.map { |author| author['name'] }.reject(&:blank?)
     end
 
     json_response(authors)
