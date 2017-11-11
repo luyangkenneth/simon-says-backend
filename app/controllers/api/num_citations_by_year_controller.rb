@@ -1,26 +1,41 @@
 class Api::NumCitationsByYearController < ApplicationController
   def index
+    pipeline = []
     num_citations_by_year = {}
 
-    Publication.where(query).each do |publication|
-      year = publication.year
-      num_citations_by_year[year] ||= 0
-      num_citations_by_year[year] += publication.inCitations.size
+    pipeline << {
+      '$match': {
+        'title': {
+          '$regex': /^#{title}$/i
+        }
+      }
+    } unless title.nil?
+
+    pipeline << {
+      '$match': {
+        'authors.name': {
+          '$in': [/^#{author}$/i]
+        }
+      }
+    } unless author.nil?
+
+    pipeline << {
+      '$group': {
+        '_id': '$year',
+        'num_citations': { '$sum': { '$size': '$inCitations' } }
+      }
+    }
+
+    Publication.collection.aggregate(pipeline).each do |result|
+      year = result['_id']&.to_s
+      next if year.nil?
+      num_citations_by_year[year] = result['num_citations']
     end
 
     json_response(num_citations_by_year)
   end
 
   private
-
-  def query
-    queries = []
-    queries << "this.title.toLowerCase() == '#{title}'" unless title.nil?
-    queries << "this.authors.map(a => a['name'].toLowerCase()).includes('#{author}')" unless author.nil?
-
-    return 'true' if queries.empty?
-    queries.join(' && ')
-  end
 
   def title
     params[:title]&.downcase
