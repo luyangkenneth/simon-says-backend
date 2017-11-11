@@ -2,8 +2,11 @@ class Api::AuthorsController < ApplicationController
   def index
     authors = Set.new
 
-    Publication.all.each do |publication|
-      authors += publication.authors.map { |author| author['name'] }.reject(&:blank?)
+    Publication.collection.aggregate([
+      { '$unwind': '$authors' },
+      { '$group': { '_id': '$authors.name' } }
+    ]).each do |publication|
+      authors << publication['_id'] unless publication['_id'].blank?
     end
 
     json_response(authors)
