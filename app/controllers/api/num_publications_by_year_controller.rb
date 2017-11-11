@@ -1,26 +1,60 @@
 class Api::NumPublicationsByYearController < ApplicationController
   def index
+    pipeline = []
     num_publications_by_year = {}
 
-    Publication.where(query).each do |publication|
-      year = publication.year
-      num_publications_by_year[year] ||= 0
-      num_publications_by_year[year] += 1
+    pipeline << {
+      '$match': {
+        'venue': {
+          '$regex': venue,
+          '$options': 'i'
+        }
+      }
+    } unless venue.nil?
+
+    pipeline += [
+      {
+        '$project': {
+          'year': 1,
+          'authors': {
+            '$map': {
+              'input': '$authors',
+              'in': { '$toLower': '$$this.name' }
+            }
+          }
+        }
+      },
+
+      {
+        '$redact': {
+          '$cond': {
+            'if': {
+              '$in': [author, '$authors']
+            },
+            'then': '$$DESCEND',
+            'else': '$$PRUNE'
+          }
+        }
+      }
+    ] unless author.nil?
+
+    pipeline << {
+      '$group': {
+        '_id': '$year',
+        'num_publications': { '$sum': 1 }
+      }
+    }
+
+    Publication.collection.aggregate(pipeline).each do |result|
+      year = result['_id']&.to_s
+      next if year.nil?
+      num_publications_by_year[year] = result['num_publications']
     end
 
     json_response(num_publications_by_year)
   end
 
   private
-
-  def query
-    queries = []
-    queries << "this.venue.toLowerCase() == '#{venue}'" unless venue.nil?
-    queries << "this.authors.map(a => a['name'].toLowerCase()).includes('#{author}')" unless author.nil?
-
-    return 'true' if queries.empty?
-    queries.join(' && ')
-  end
 
   def venue
     params[:venue]&.downcase
