@@ -6,7 +6,7 @@ class Api::NumCitationsByYearController < ApplicationController
     pipeline << {
       '$match': {
         'title': {
-          '$regex': /^#{title}$/i
+          '$regex': /^#{Regexp.escape(title)}$/i
         }
       }
     } unless title.nil?
@@ -14,7 +14,7 @@ class Api::NumCitationsByYearController < ApplicationController
     pipeline << {
       '$match': {
         'authors.name': {
-          '$in': [/^#{author}$/i]
+          '$in': [/^#{Regexp.escape(author)}$/i]
         }
       }
     } unless author.nil?

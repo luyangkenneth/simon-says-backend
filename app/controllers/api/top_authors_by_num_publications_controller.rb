@@ -8,7 +8,7 @@ class Api::TopAuthorsByNumPublicationsController < ApplicationController
     pipeline << {
       '$match': {
         'venue': {
-          '$regex': /^#{venue}$/i
+          '$regex': /^#{Regexp.escape(venue)}$/i
         }
       }
     } unless venue.nil?

@@ -6,7 +6,7 @@ class Api::NumPublicationsByYearController < ApplicationController
     pipeline << {
       '$match': {
         'venue': {
-          '$regex': /^#{venue}$/i
+          '$regex': /^#{Regexp.escape(venue)}$/i
         }
       }
     } unless venue.nil?
@@ -14,7 +14,7 @@ class Api::NumPublicationsByYearController < ApplicationController
     pipeline << {
       '$match': {
         'authors.name': {
-          '$in': [/^#{author}$/i]
+          '$in': [/^#{Regexp.escape(author)}$/i]
         }
       }
     } unless author.nil?
