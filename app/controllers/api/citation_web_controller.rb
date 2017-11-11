@@ -13,6 +13,22 @@ class Api::CitationWebController < ApplicationController
       inCitations: base_paper['inCitations']
     }
 
+    # Level 1
+    Publication.collection.aggregate([
+      {
+        '$match': {
+          'publication_id': {
+            '$in': base_paper['inCitations']
+          }
+        }
+      }
+    ]).each do |paper|
+      citation_web[paper['publication_id']] = {
+        title: paper['title'],
+        inCitations: paper['inCitations']
+      }
+    end
+
     json_response(citation_web)
   end
 
