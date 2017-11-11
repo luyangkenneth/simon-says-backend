@@ -1,36 +1,50 @@
 class Api::TopAuthorsByNumPublicationsController < ApplicationController
   def index
-    authors_by_num_publications = {}
+    pipeline = []
     top_authors_by_num_publications = {}
 
     raise ArgumentError, 'Must specify either `top` or `venue` because number of authors is over 9000' if top.nil? && venue.nil?
 
-    Publication.where(query).each do |publication|
-      publication.authors.each do |author|
-        name = author['name']
-        authors_by_num_publications[name] ||= 0
-        authors_by_num_publications[name] += 1
-      end
-    end
+    pipeline << {
+      '$match': {
+        'venue': {
+          '$regex': /^#{venue}$/i
+        }
+      }
+    } unless venue.nil?
 
-    top_authors = authors_by_num_publications.sort_by { |_name, num_publications| -num_publications }
-    top_authors = top_authors.first(top) unless top.nil?
-    top_authors.each do |author|
-      top_authors_by_num_publications[author.first] = author.last
+    pipeline += [
+      { '$unwind': '$authors' },
+
+      {
+        '$group': {
+          '_id': '$authors.name',
+          'num_publications': { '$sum': 1 }
+        }
+      },
+
+      {
+        '$sort': {
+          'num_publications': -1,
+          '_id': 1
+        }
+      }
+    ]
+
+    pipeline << {
+      '$limit': top
+    } unless top.nil?
+
+    Publication.collection.aggregate(pipeline).each do |result|
+      author = result['_id']
+      next if author.nil?
+      top_authors_by_num_publications[author] = result['num_publications']
     end
 
     json_response(top_authors_by_num_publications)
   end
 
   private
-
-  def query
-    queries = []
-    queries << "this.venue.toLowerCase() == '#{venue}'" unless venue.nil?
-
-    return 'true' if queries.empty?
-    queries.join(' && ')
-  end
 
   def top
     params[:top]&.to_i
