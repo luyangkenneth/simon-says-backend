@@ -6,15 +6,6 @@ class Api::TopPublicationsByNumCitationsController < ApplicationController
     raise ArgumentError, 'Must specify either `top` or `venue` because number of publications is over 9000' if top.nil? && venue.nil?
 
     pipeline << {
-      '$project': {
-        '_id': '$publication_id',
-        'title': 1,
-        'venue': 1,
-        'num_citations': { '$sum': { '$size': '$inCitations' } }
-      }
-    }
-
-    pipeline << {
       '$match': {
         'venue': {
           '$regex': /^#{venue}$/i
@@ -22,11 +13,21 @@ class Api::TopPublicationsByNumCitationsController < ApplicationController
       }
     } unless venue.nil?
 
-    pipeline << {
-      '$sort': {
-        'num_citations': -1
+    pipeline += [
+      {
+        '$project': {
+          '_id': '$publication_id',
+          'title': 1,
+          'num_citations': { '$sum': { '$size': '$inCitations' } }
+        }
+      },
+
+      {
+        '$sort': {
+          'num_citations': -1,
+        }
       }
-    }
+    ]
 
     pipeline << {
       '$limit': top
