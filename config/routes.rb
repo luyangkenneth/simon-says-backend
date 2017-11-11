@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     get 'authors', to: 'authors#index'
+    get 'venues', to: 'venues#index'
     get 'publication_titles', to: 'publication_titles#index'
 
     # params: venue / author
