@@ -6,37 +6,18 @@ class Api::NumPublicationsByYearController < ApplicationController
     pipeline << {
       '$match': {
         'venue': {
-          '$regex': venue,
-          '$options': 'i'
+          '$regex': /^#{venue}$/i
         }
       }
     } unless venue.nil?
 
-    pipeline += [
-      {
-        '$project': {
-          'year': 1,
-          'authors': {
-            '$map': {
-              'input': '$authors',
-              'in': { '$toLower': '$$this.name' }
-            }
-          }
-        }
-      },
-
-      {
-        '$redact': {
-          '$cond': {
-            'if': {
-              '$in': [author, '$authors']
-            },
-            'then': '$$DESCEND',
-            'else': '$$PRUNE'
-          }
+    pipeline << {
+      '$match': {
+        'authors.name': {
+          '$in': [/^#{author}$/i]
         }
       }
-    ] unless author.nil?
+    } unless author.nil?
 
     pipeline << {
       '$group': {
