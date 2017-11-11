@@ -14,5 +14,8 @@ Rails.application.routes.draw do
     # params: top / venue
     get 'top_authors_by_num_publications', to: 'top_authors_by_num_publications#index'
     get 'top_publications_by_num_citations', to: 'top_publications_by_num_citations#index'
+
+    # params: title
+    get 'citation_web', to: 'citation_web#index'
   end
 end
