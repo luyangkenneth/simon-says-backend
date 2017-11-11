@@ -1,23 +1,43 @@
 class Api::TopPublicationsByNumCitationsController < ApplicationController
   def index
-    publications_by_num_citations = {}
+    pipeline = []
     top_publications_by_num_citations = {}
 
     raise ArgumentError, 'Must specify either `top` or `venue` because number of publications is over 9000' if top.nil? && venue.nil?
 
-    Publication.where(query).each do |publication|
-      publications_by_num_citations[publication.publication_id] = {
-        title: publication.title,
-        num_citations: publication.inCitations.size
+    pipeline << {
+      '$project': {
+        '_id': '$publication_id',
+        'title': 1,
+        'venue': 1,
+        'num_citations': { '$sum': { '$size': '$inCitations' } }
       }
-    end
+    }
 
-    top_publications = publications_by_num_citations.sort_by { |_publication_id, publication| -publication[:num_citations] }
-    top_publications = top_publications.first(top) unless top.nil?
-    top_publications.each do |publication|
-      top_publications_by_num_citations[publication.first] = {
-        title: publication.last[:title],
-        count: publication.last[:num_citations]
+    pipeline << {
+      '$match': {
+        'venue': {
+          '$regex': /^#{venue}$/i
+        }
+      }
+    } unless venue.nil?
+
+    pipeline << {
+      '$sort': {
+        'num_citations': -1
+      }
+    }
+
+    pipeline << {
+      '$limit': top
+    } unless top.nil?
+
+    Publication.collection.aggregate(pipeline).each do |result|
+      publication_id = result['_id']
+      next if publication_id.nil?
+      top_publications_by_num_citations[publication_id] = {
+        title: result['title'],
+        count: result['num_citations']
       }
     end
 
@@ -25,14 +45,6 @@ class Api::TopPublicationsByNumCitationsController < ApplicationController
   end
 
   private
-
-  def query
-    queries = []
-    queries << "this.venue.toLowerCase() == '#{venue}'" unless venue.nil?
-
-    return 'true' if queries.empty?
-    queries.join(' && ')
-  end
 
   def top
     params[:top]&.to_i
