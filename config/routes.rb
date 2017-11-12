@@ -20,5 +20,8 @@ Rails.application.routes.draw do
 
     # params: *title / *depth = 0
     get 'citation_network', to: 'citation_network#index'
+
+    # params: author
+    get 'word_cloud', to: 'word_cloud#index'
   end
 end
