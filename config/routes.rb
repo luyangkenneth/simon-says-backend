@@ -6,6 +6,8 @@ Rails.application.routes.draw do
     get 'venues', to: 'venues#index'
     get 'publication_titles', to: 'publication_titles#index'
 
+    resources :publications, only: [:show]
+
     # params: venue / author
     get 'num_publications_by_year', to: 'num_publications_by_year#index'
 
