@@ -51,10 +51,14 @@ class Api::TopAuthorsByNumPublicationsController < ApplicationController
       '$limit': top
     } unless top.nil?
 
+    result_index = 0
     Publication.collection.aggregate(pipeline).each do |result|
       author = result['_id']
       next if author.nil?
-      top_authors_by_num_publications[author] = result['num_publications']
+      top_authors_by_num_publications[result_index += 1] = {
+        author: author,
+        count: result['num_publications']
+      }
     end
 
     json_response(top_authors_by_num_publications)
