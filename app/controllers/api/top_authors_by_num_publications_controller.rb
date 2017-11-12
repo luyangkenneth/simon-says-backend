@@ -3,7 +3,7 @@ class Api::TopAuthorsByNumPublicationsController < ApplicationController
     pipeline = []
     top_authors_by_num_publications = {}
 
-    raise ArgumentError, 'Must specify either `top` or `venue` because number of authors is over 9000' if top.nil? && venue.nil?
+    raise ArgumentError, 'Must specify `top`' if top.nil?
 
     pipeline << {
       '$match': {
@@ -12,6 +12,22 @@ class Api::TopAuthorsByNumPublicationsController < ApplicationController
         }
       }
     } unless venue.nil?
+
+    pipeline << {
+      '$match': {
+        'year': {
+          '$gte': start_year
+        }
+      }
+    } unless start_year.nil?
+
+    pipeline << {
+      '$match': {
+        'year': {
+          '$lte': end_year
+        }
+      }
+    } unless end_year.nil?
 
     pipeline += [
       { '$unwind': '$authors' },
@@ -52,5 +68,13 @@ class Api::TopAuthorsByNumPublicationsController < ApplicationController
 
   def venue
     params[:venue]&.downcase
+  end
+
+  def start_year
+    params[:start_year]&.to_i
+  end
+
+  def end_year
+    params[:end_year]&.to_i
   end
 end
