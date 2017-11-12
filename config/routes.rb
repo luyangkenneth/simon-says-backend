@@ -17,6 +17,6 @@ Rails.application.routes.draw do
     get 'top_publications_by_num_citations', to: 'top_publications_by_num_citations#index'
 
     # params: *title / *depth = 0
-    get 'citation_web', to: 'citation_web#index'
+    get 'citation_network', to: 'citation_network#index'
   end
 end

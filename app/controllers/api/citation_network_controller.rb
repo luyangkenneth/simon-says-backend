@@ -1,6 +1,6 @@
-class Api::CitationWebController < ApplicationController
+class Api::CitationNetworkController < ApplicationController
   def index
-    citation_web = {}
+    citation_network = {}
 
     raise ArgumentError, 'Must specify `title` and `depth`' if title.nil? || depth.nil?
     raise ArgumentError, '`depth` must be an integer between 0 - 5' unless depth.in?(0..5)
@@ -9,7 +9,7 @@ class Api::CitationWebController < ApplicationController
     base_paper = Publication.collection.find({ title: /^#{Regexp.escape(title)}$/i }).first
     raise ArgumentError, "Could not find base paper titled: #{title}" if base_paper.nil?
 
-    citation_web[base_paper['publication_id']] = {
+    citation_network[base_paper['publication_id']] = {
       title: base_paper['title'],
       inCitations: base_paper['inCitations']
     }
@@ -28,7 +28,7 @@ class Api::CitationWebController < ApplicationController
           }
         }
       ]).each do |paper|
-        citation_web[paper['publication_id']] = {
+        citation_network[paper['publication_id']] = {
           title: paper['title'],
           inCitations: paper['inCitations']
         }
@@ -39,7 +39,7 @@ class Api::CitationWebController < ApplicationController
       previous_incitations = current_incitations
     end
 
-    json_response(citation_web)
+    json_response(citation_network)
   end
 
   private
