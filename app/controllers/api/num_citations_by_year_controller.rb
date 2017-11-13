@@ -32,6 +32,10 @@ class Api::NumCitationsByYearController < ApplicationController
       num_citations_by_year[year] = result['num_citations']
     end
 
+    (1990..2017).each do |year|
+      num_citations_by_year[year.to_s] ||= 0
+    end
+
     json_response(num_citations_by_year)
   end
 
