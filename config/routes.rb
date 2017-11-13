@@ -11,7 +11,7 @@ Rails.application.routes.draw do
     # params: venue / author
     get 'num_publications_by_year', to: 'num_publications_by_year#index'
 
-    # params: title / author
+    # params: title / venue / author
     get 'num_citations_by_year', to: 'num_citations_by_year#index'
 
     # params: *top / venue / start_year / end_year

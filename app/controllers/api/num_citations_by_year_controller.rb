@@ -13,6 +13,14 @@ class Api::NumCitationsByYearController < ApplicationController
 
     pipeline << {
       '$match': {
+        'venue': {
+          '$regex': /^#{Regexp.escape(venue)}$/i
+        }
+      }
+    } unless venue.nil?
+
+    pipeline << {
+      '$match': {
         'authors.name': {
           '$in': [/^#{Regexp.escape(author)}$/i]
         }
@@ -43,6 +51,10 @@ class Api::NumCitationsByYearController < ApplicationController
 
   def title
     params[:title]&.downcase
+  end
+
+  def venue
+    params[:venue]&.downcase
   end
 
   def author
