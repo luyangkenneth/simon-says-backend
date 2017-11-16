@@ -27,11 +27,3 @@ mongodump -d viz -c publications
 ```
 mongorestore -h ds243285.mlab.com:43285 -d heroku_9nszfk0s -c publications -u heroku_9nszfk0s -p <password> dump/viz/publications.bson
 ```
-
-
-## API
-
-### Citation Web
-https://simon-says-backend.herokuapp.com/api/citation_network?title=Low-density%20parity%20check%20codes%20over%20GF(q)
-
-_TODO_
